@@ -1,4 +1,10 @@
 
+//Created by Mitchell Barker
+//3-12-16
+//Password breaking tools
+
+
+
 #include "database.hpp"
 
 //Compile with 
@@ -11,15 +17,34 @@ int main(void){
 	string passwd;
 	//authenticate();
 	//cout<<"authen"<<endl;
-	DataBase db = DataBase("./db.txt");
+	Database db = Database("./db.txt");
 
 	/*cout<<"username: ";
 	getline(cin, user);
 	cout<<"password: ";
 	cin>>passwd;*/
+	/*cout<<munge_char('a')<<endl;
+	cout<<munge_char('A')<<endl;
+	cout<<munge_char('@')<<endl;
+	cout<<munge_char('^')<<endl;*/
+	//db.brute_find("");
+	db.expanded_dict_find("cain.txt", "cracked.txt");
 
-	db.find_passwords("");
-	//db.dict_passwords();
+	// vector<string> temp = children("apple");
+	// for(int i = 0; i < temp.size(); ++i )
+	// 	cout<<temp[i]<<endl;
+
+	// string cur = "myfavoriteplacesonearth";
+	// int count = 0;
+	// while(!munged_string(cur)){
+	// 	cur = next_munge("myfavoriteplacesonearth", cur);
+	// 	cout<<cur<<endl;
+	// 	++count;
+	// }
+	// cout<<count<<endl;
+
+
+
 	/*cout<<next_string("a")<<endl;
 	cout<<next_string("abcdef")<<endl;
 	cout<<next_string("a~")<<endl;
