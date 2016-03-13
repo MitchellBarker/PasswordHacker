@@ -170,24 +170,24 @@ void Database::pass_match(string passwd){
 		if(it->salt.length()>0){
 			hash = my_compute_hash(passwd+it->salt);
 			if(it->hash_val == hash)
-				out<<it->user_name<<":"<<passwd<<endl;
+				cout<<it->user_name<<":"<<passwd<<endl;
 			hash = r_hash;
 		}
 		else if(it->hash_val == hash)
-			out<<it->user_name<<":"<<passwd<<endl;
+			cout<<it->user_name<<":"<<passwd<<endl;
 	}
 }
 
 void Database::brute_find(string out_file=""){
 	string current = ""+START_CHAR;
 
-	out.open(out_file.c_str());
+	//out.open(out_file.c_str());
 
 	while(true){
 		pass_match(current);
 		current = next_string(current);
 	}
-	out.close();
+	//out.close();
 }
 
 void Database::dict_find(string dict, string out_file=""){

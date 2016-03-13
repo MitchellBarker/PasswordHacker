@@ -27,8 +27,8 @@ int main(void){
 	cout<<munge_char('A')<<endl;
 	cout<<munge_char('@')<<endl;
 	cout<<munge_char('^')<<endl;*/
-	//db.brute_find("");
-	db.expanded_dict_find("cain.txt", "cracked.txt");
+	db.brute_find("brute.txt");
+	//db.dict_find("big_dict.txt", "cracked.txt");
 
 	// vector<string> temp = children("apple");
 	// for(int i = 0; i < temp.size(); ++i )
