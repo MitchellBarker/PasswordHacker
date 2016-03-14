@@ -18,6 +18,7 @@
 #include <openssl/md5.h>
 #include <iomanip>
 #include <map>
+
 	using namespace std;
 
 typedef unsigned int uint;
@@ -31,6 +32,7 @@ bool is_munged(char c);
 char munge_char(char c);
 string next_munge(string original, string cur);
 bool munged_string(string s);
+string mungest_string(string s);
 
 string next_string(string cur);
 char next_char(char cur);
@@ -81,6 +83,7 @@ public:
 	void brute_find(string out_file);
 	void dict_find(string dict, string out_file);
 	void expanded_dict_find(string dict, string out_file);
+	void print_user_hash();
 
 	friend ostream &operator<<(ostream &output, const Database &d);
 
@@ -162,6 +165,14 @@ Database::Database(string input_file){
 	file.close();
 }
 
+void Database::print_user_hash(){
+	ofstream os("john_use.txt");
+	for(auto it = db.begin(); it != db.end(); ++it)
+		os<<it->user_name<<":"<<it->hash_val<<endl;
+
+
+}
+
 void Database::pass_match(string passwd){
 	string hash = my_compute_hash(passwd);
 	string r_hash = hash;
@@ -170,24 +181,24 @@ void Database::pass_match(string passwd){
 		if(it->salt.length()>0){
 			hash = my_compute_hash(passwd+it->salt);
 			if(it->hash_val == hash)
-				cout<<it->user_name<<":"<<passwd<<endl;
+				out<<it->user_name<<":"<<passwd<<endl;
 			hash = r_hash;
 		}
 		else if(it->hash_val == hash)
-			cout<<it->user_name<<":"<<passwd<<endl;
+			out<<it->user_name<<":"<<passwd<<endl;
 	}
 }
 
 void Database::brute_find(string out_file=""){
-	string current = ""+START_CHAR;
-
-	//out.open(out_file.c_str());
+	string current;
+	current = START_CHAR;
+	out.open(out_file.c_str());
 
 	while(true){
 		pass_match(current);
 		current = next_string(current);
 	}
-	//out.close();
+	out.close();
 }
 
 void Database::dict_find(string dict, string out_file=""){
@@ -208,7 +219,7 @@ void Database::dict_find(string dict, string out_file=""){
 
 void Database::expanded_dict_find(string dict, string out_file=""){
 	ifstream ifile(dict.c_str());
-	string temp, cur;
+	string temp, cur, m;
 
 	out.open(out_file.c_str());
 
@@ -217,8 +228,9 @@ void Database::expanded_dict_find(string dict, string out_file=""){
 		getline(ifile, temp);
 		pass_match(temp);
 		cur = temp;
+		m = mungest_string(temp);
 
-		while(!munged_string(cur)){
+		while(cur != m){
 			cur = next_munge(temp, cur);
 			pass_match(cur);
 		}
@@ -274,6 +286,18 @@ bool munged_string(string s){
 	return final;
 }
 
+string mungest_string(string s){
+	char c;
+	for(int i = 0; i < s.size(); ++i){
+		c = munge_char(s[i]);
+		while(s[i] != c){
+			s[i] = c;
+			c = munge_char(s[i]);
+		}
+	}
+	return s;
+}
+
 bool is_munged(char c){
 	if (munge_char(c) == c)
 		return true;
@@ -319,6 +343,83 @@ char next_char(char cur){
 		++cur;
 	return cur;
 }
+
+
+
+
+
+
+string rand_word(string file, int length){
+	//srand(time(NULL));
+	vector<string> dict;
+	ifstream is(file.c_str());   
+   	string line, word, temp;
+   	int chars_left = length;
+
+
+  	while (getline(is , line))
+    	dict.push_back(line);
+
+    while(chars_left > 0){
+    	temp = dict[rand()%dict.size()];
+    	if(chars_left == temp.length()){
+    		chars_left -= temp.length();
+    		word += temp;
+    	}
+    	else if (chars_left > temp.length() && chars_left > 6){
+    		chars_left -= temp.length();
+    		word += temp;
+    	}
+    }
+  	return word;
+}
+string add_special_num(string s){
+	string next = s;
+	int r, count = 0;
+
+	while(s == next && count != s.length()*5){
+		++count;
+		r = rand() % s.length();
+
+		if(islower(next[r]) && !is_munged(toupper(next[r])) ){
+			while(!is_munged(next[r]) )
+					next[r] = munge_char(next[r]);
+		}
+
+	}
+
+	return next;
+}
+
+string add_capital(string s){
+	string next = s;
+	int r;
+
+	while(s == next){
+		r = rand() % s.length();
+		if( islower(next[r]))
+			next[r] = toupper(next[r]);
+
+	}
+	return next;
+
+}
+
+
+//adds at least one capital and one special char
+string gen_password(string dict, int length, int capitals=1, int nonalpha=1){
+	srand(time(NULL));
+	string word = rand_word(dict, length);
+	for(int i = 0; i < capitals; ++i)
+		word = add_capital(word);
+
+	for(int i = 0; i < nonalpha; ++i)
+		word = add_special_num(word);
+	
+	return word;
+}
+
+
 
 
 //MD5 Hashing functions////////////////////////
